@@ -1,0 +1,26 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  color: rgb(89, 185, 33);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+p {
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.instruction {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 12px;
+}
