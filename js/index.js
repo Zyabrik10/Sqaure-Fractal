@@ -8,6 +8,11 @@
 
 // P.S.: You can do whatever you want with this project as long as it remains non-commercial
 
+/*
+`canvas` variable is to store canvas DOMElement.
+
+`ctx` variable is to store functions, which are provided by canvas api by `getContext("2d")` mehtod
+*/
 let canvas, ctx; // will be initialized in window on load
 
 // canvas.width / 2, canvas.height / 2
@@ -20,9 +25,16 @@ let halfCanvasWidth, halfCanvasHeight; // will be initialized in window on load
 */
 let startPoint, settings; // will be initialized in window on load
 
+/*
+We need mouse object to store mouse state.
+
+`downOffset` - is used in canvas mousedown
+`isDown` - is used in canvas mousedown, mouseup, mousemove
+
+*/
 let mouse = {
-  downOffset: { x: 0, y: 0 }, // is used in canvas mousedown
-  isDown: false, // is used in canvas mousedown, mouseup, mousemove
+  downOffset: { x: 0, y: 0 },
+  isDown: false,
 };
 
 // default values for entire app
@@ -30,21 +42,32 @@ const currentDepth = 5; // defines what depth of fractal will be. For example: 1
 const size = 200; // defined size of root square, is used in settings and on wheel event for zoom in and out effect
 const zoom = 10; // strength of zooming (+- 10px to the size of root square per wheel)
 
-// When the square we want to draw is not in our sight (viewport), it won't be drawn
 function drawOptimizedSquare(x, y, size) {
   /*
-    x + size >= 0 && y + size >= 0:
-    x + size -> right side of square
-    y + size -> bottom side of square
+    `drawOptimizedSquare()` is called in `drawFractal()` function
 
-    If x square coordinate (top right by default) plus size of square (x + size, wich gives us top left) is bigger than or equal to zero (x + size >= 0) and the same check applies for y coordinate.
-    Basically with this check, we make sure that right and bottom sides are present in the viewport.
+    To use the `ctx` function `fillRect`, we need to pass it four parameters: x, y, width, and height of the rectangle we want to draw.
 
-    x <= innerWidth && y <= innerHeight:
-    x -> left side of square
-    y -> top side of square
+    ```js
+    ctx.fillRect(x, y, width, height);
+    ```
 
-    The same check applies for left and top sides, where we check if main x and y square coordinates are less than or equal to the width and height of the viewport (if top and left sides of square are present in the viewport)
+    Since we want to draw a square, the width and height are equal and are represented by the parameter `size`.
+
+    When the square we want to draw is not in our sight (viewport), it won't be drawn and vice versa.
+
+    1. ```js
+      x + size >= 0 && y + size >= 0;
+      x + size; // -> right side of the square
+      y + size; // -> bottom side of the square
+      ```
+      We make sure that right and bottom sides are present in the viewport
+    2. ```js
+      x <= innerWidth && y <= innerHeight:
+      x; // -> left side of the square
+      y; // -> top side of the square
+      ```
+      We ensure that the left and top sides are present in the viewport.
   */
   if (x + size >= 0 && y + size >= 0 && x <= innerWidth && y <= innerHeight) {
     ctx.beginPath();
@@ -52,7 +75,7 @@ function drawOptimizedSquare(x, y, size) {
   }
 }
 
-// Main recursive function that makes calculations, where and when to allow drawing a square, before actually drawing
+// Main recursive function that makes calculations, where to allow drawing a square, before actually drawing.
 function drawFractal({
   x,
   y,
@@ -66,129 +89,140 @@ function drawFractal({
   },
 }) {
   /*
-    - We don't need to draw infinite squares, but only as much as we want.
+  - We don't need to draw an infinite number of squares, only as many as desired.
+  - `currentDepth` is a counter that represents the current depth in each square.
+  - A new square takes a new `currentDepth` decreased by one.
 
-    - currentDepth is just a counter which represents a depth (where we are right now) in each square and when we draw a new corner square in the current square.
-
-    - The new square takes a new counter currentDepth decreased by one.
-
-    - Each square has its own currentDepth.
-  */
+*/
   if (currentDepth <= 0) return;
 
   /*
-    - "x" and "y" are coordinates that represent the top left corner of each parent square (if we are talking about the first square then we can assume that we build it according to its parent square(just pass our imaginary square params)).
-
-    - "size" is the size of the current square which has been calculated depending on the parent size when the parent square decided that this corner square will be drawn.
+  - `x`and`y` are the coordinates representing the top-left corner of each parent square.
+  - `size` is the size of the current square, calculated based on the parent square's size.
+  - `Offset`is an object with two properties:`x`and`y`.
+      - These properties can only be `0` or `1`.
+      - They are coefficients used to position the child square correctly in the corners.
   */
 
   /*
-    - Offset is an object which has two properties: x and y.
+  We perform simple calculations based on these offsets.
 
-    - These two properties can have only two numbers 0 or 1.
+  Corner square offsets are provided by hardcoding:
 
-    - They are coefficients for the child square to draw them properly in the corner.
-  */
+  * `1 1` - top left corner
+  * `0 1` - top right corner
+  * `0 0` - bottom right corner
+  * `1 0` - bottom left corner
 
-  /*
-    Basically, we do simple math/dependencies.
+  This offset is used in the main offset calculation `size * offset` to determine if we need to make a `left`, `right`, or `no offset` adjustment according to the parent square's coordinates.
 
-    Corner square offset will be provided by hardcoding:
-    1 1 - left top corner
-    0 1 - right top corner
-    0 0 - right bottom corner
-    1 0 - left bottom corner
+  For example, if the parent square has coordinates `x = 0`, `y = 0` and its `size` is `100px`, then:
 
-    This offset is used in main offset calculation size * offset.
-    It determines whether we make left, right, or no offset according to parent square coordinates for the corner square to put in the right corner place.
+  - To draw a `left top` corner square, we calculate:
 
-    Let's say our parent square has such coordinates -> x = 0, y = 0 and its size: 100px
-
-    To make the left top corner square we need to determine its coordinates accordingly:
-
-    __- top left square | child square
-   |__|____
+    ```txt
+     __- top left square | child square
+    |__|____
       |    |
       |____| - parent square
-
+    ```
+    ```js
     squareX = 0 - 100 * 1 = -100
     squareY = 0 - 100 * 1 = -100
+    ```
+  - To draw a `right top` corner square, we calculate: -> `x = 0 + 100, y = 0 - 100` (so our calculation will be according to `right top` corner of the parent square):
 
-    To make the right top corner square we need to determine its coordinates accordingly -> x = 0 + 100, y = 0 (so our calculation will be according to the right top corner of the parent square):
+    ```txt
           __
      ____|__| - top right square | child square
     |    |
     |____| - parent square
-
+    ```
+    ```js
     squareX = 100 - 100 * 0 = 100
     squareY = 0 - 100 * 1 = -100
+    ```
+  - To draw a `right bottom` corner square, we calculate: -> `x = 0 + 100, y = 0 + 100` (so our calculation will be according to `right bottom` corner of the parent square):
 
-    To make the right bottom corner square we need to determine its coordinates accordingly -> x = 0 + 100, y = 0 + 100 (so our calculation will be according to the right bottom corner of the parent square):
+    ```txt
      ____
     |    | - parent square
     |____|__
          |__| - bottom right square | child square
-
+    ```
+    ```js
     squareX = 100 - 100 * 0 = 100
     squareY = 100 - 100 * 0 = 100
+    ```
+  - To draw a `left bottom` corner square, we calculate: -> `x = 0 - 100, y = 0 + 100` (so our calculation will be according to `left bottom` corner of the parent square):
 
-    To make the left bottom corner square we need to determine its coordinates accordingly -> x = 0, y = 0 + 100 (so our calculation will be according to the left bottom corner of the parent square):
+    ```txt
        ____
-      |    | - parent square
+      |    | - parent square 
     __|____|
    |__| - bottom left square | child square
-
+    ```
+    ```js
     squareX = 0 - 100 * 1 = -100
     squareY = 100 - 100 * 0 = 100
   */
+
   let squareX = x - size * offset.x;
   let squareY = y - size * offset.y;
 
   drawOptimizedSquare(squareX, squareY, size);
 
   /*
-    We don't want to spend time calculating square coordinates and drawing those we won't see.
+    We avoid unnecessary calculations for squares that will not be visible. For instance:
 
+    For the `top left` square, we don't need to draw the `bottom right` square.
+
+    ```txt
     __ - top left square
-   |__|____
+    |__|____
       |__| | - this square inside, we don't need it
       |____|
+    ```
 
+    For the `top right` square, we don't need to draw the `bottom left` square.
+
+    ```txt
           __
-     ____|__| - top right square
+    ____|__| - top right square
     | |__| - this square inside, we don't need it
     |____|
+    ```
 
-     ____
+    For the `bottom left` square, we don't need to draw the `top right` square.
+
+    ```txt
+    ____
     |  __| - this square inside, we don't need it
     |_|__|__
-         |__| - bottom right square
+        |__| - bottom right square
+    ```
 
-       ____
+    For the `bottom right` square, we don't need to draw the `top left` square.
+
+    ```txt
+        ____
       |__  |
     __|__|_| - this square inside, we don't need it
-   |__| - bottom left square
+    |__| - bottom left square
+    ```
 
-   So we need to somehow determine what sides and where we need and vice versa.
+    We use a bitmask to determine which sides and corners need to be drawn:
 
-   - For the top left square we don't need to draw the bottom right square
+    * `1111` - All corners have squares
+    * `1110` - Without the `bottom left` square
+    * `1101` - Without the `bottom right` square
+    * `1011` - Without the `top right` square
+    * `0111` - Without the `top left` square
 
-   - For the top right square we don't need to draw the bottom left square
+    In this bitmask:
 
-   - For the bottom left square we don't need to draw the top right square
-
-   - For the bottom right square we don't need to draw the top left square
-
-   sides: "1111"
-
-   1111 - all corners have squares
-   1110 - without the bottom left square
-   1101 - without the bottom right square
-   1011 - without the top right square
-   0111 - without the top left square
-
-   1 - we calculate and draw the child square
-   0 - we don't calculate and draw the child square
+    * `1` - indicates that we calculate and draw the child square.
+    * `0` - indicates that we do not calculate and draw the child square.
   */
 
   if (sides.startsWith("1")) {
@@ -248,8 +282,13 @@ function drawFractal({
   }
 }
 
-// This function is supposed to redraw the fractal every time the user zooms in/out or moves the fractal
-// First time is called when the window is loaded
+/*
+
+`draw()` is supposed to redraw the fractal every time the user zooms in/out or moves the fractal by clearing the canvas with `ctx` and calling `drawFractal()`.
+
+It is called for the first time when the window is loaded.
+
+*/
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawFractal({
@@ -261,14 +300,36 @@ function draw() {
   });
 }
 
-// Keeps the size of the canvas up, so it looks good
-// It is called when viewport resized
+/*
+
+Keeps the size of the canvas updated so it looks good. It is called when the viewport is resized.
+
+It is called for the first time when the window is loaded.
+
+We apply the new size of the viewport to the canvas and then call the draw function. It will clear the canvas and redraw the fractal again.
+
+*/
 function resizeCanvas() {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
   draw();
 }
 
+/*
+
+We need to know exactly when our mouse is down, so we need some variables to help us track the mouse state.
+
+The global `mouse` object is there for this purpose. It has all the properties we need to track for our mouse.
+
+We set `mouse.isDown` to true in the `onmousedown` event and set it to false in the `onmouseup` event.
+
+The second thing we set is the mouse down offset.
+
+We subtract the root square position at the beginning from the current mouse down position.
+
+If we make the root square position the same as the mouse position, we won't be able to drag the fractal because we won't be able to save the previous root square position. That is why we need the offset. We simply add the mouse down offset to the mouse position so that the fractal stays in the same position until we move the mouse.
+
+*/
 function mouseDownHandle({ x, y }) {
   mouse.isDown = true;
   mouse.downOffset = {
@@ -277,10 +338,12 @@ function mouseDownHandle({ x, y }) {
   };
 }
 
+// In this function we say that mouse is no longer down and set `mouse.isDown` to false.
 function mouseUpHandle() {
   mouse.isDown = false;
 }
 
+// Update root square position based on `downOffset` and redraw the fractal.
 function mouseMoveHandle({ x, y }) {
   if (mouse.isDown) {
     settings.startPoint.x = x + mouse.downOffset.x;
@@ -289,36 +352,46 @@ function mouseMoveHandle({ x, y }) {
   }
 }
 
-// Long story short. All we do here is just increasing the size of the root square and move it with offset, to make a zoom in/out effect
+// Long story short, all we do here is just increase the size of the root square and move it with an offset to create a zoom in/out effect.
 function wheelHandle(e) {
   const { deltaY, offsetX: x, offsetY: y } = e;
 
-  const scaleFactor = settings.size / size; // define how much the default size is bigger or smaller than our current size
+  const scaleFactor = settings.size / size; // defines how much the default size is bigger or smaller than our current size.
 
-  let zoomChange = settings.zoom * (deltaY > 0 ? -1 : 1); // define if we scale fractal up or down
-  let newSize = settings.size + zoomChange; // calculate new size of fractals depending on zoomChange
+  let zoomChange = settings.zoom * (deltaY > 0 ? -1 : 1); // determines if we scale the fractal up or down.
+  let newSize = settings.size + zoomChange; // The new size of the fractal is calculated depending on `zoomChange`.
 
   if (newSize < 50) {
-    // We don't want to make our size so small, so we can't see it
+    // We don't want to make our size so small that we can't see it. I decided, by observing, that the size shouldn't be less than 50 pixels.
     newSize = 50;
   }
 
-  const newScaleFactor = newSize / size; // now we calculate how much the default size is bigger or smaller than our current size
+  const newScaleFactor = newSize / size; // Here, we calculate how much the default size is bigger or smaller than our current size.
 
+  // Thanks to this offset we can make a zoom-in effect where we point.
   const mouseOffset = {
-    // thanks to this offset we can make a zoom-in effect where we point
     x: x - settings.startPoint.x,
     y: y - settings.startPoint.y,
   };
 
-  // now we set new coordinates based on offset and size
+  // Now we set new coordinates based on the offset and size.
   settings.startPoint.x += mouseOffset.x * (1 - newScaleFactor / scaleFactor);
   settings.startPoint.y += mouseOffset.y * (1 - newScaleFactor / scaleFactor);
+
+  // And after this, we just apply the new size, the new zoom, and redraw the fractal.And afetr this we just apply new size, the new zoom and redraw the fractal.
 
   settings.size = newSize;
   settings.zoom += deltaY > 0 ? -10 : 10;
   draw();
 }
+
+/*
+
+`windowOnLoad()` is just a function which is being called when the window is loaded, and it sets up the whole project: initializes the canvas, `GUI`, calls the `draw()` function, and sets up window events like `mousemove`, `mousedown`, `mouseup`, and `mousewheel`.
+
+Setting up `dat.GUI` so we can modify our fractal with user interface.
+
+*/
 
 function windowOnLoad() {
   canvas = document.querySelector("canvas");
@@ -373,3 +446,89 @@ function windowOnLoad() {
 }
 
 window.addEventListener("load", windowOnLoad);
+
+/*
+
+### Drawing
+
+For drawing each square at different depths, I use recursion. For the recursive function, we need to determine what will be the end of its recursion. For this function, it is the current depth. Then, we need to figure out where to call this function inside itself.
+
+All I do is pass the following parameters in my recursive function:
+
+* Depth
+* New size that depends on the parent size
+* Coordinates that depend on the parent coordinates
+* Coefficient of scaling that represents how much smaller or bigger the child squares will be
+* Sides that are allowed to be calculated for the child squares
+* Offset that shows us where to place the child square
+
+The first square to be drawn in this sequence is the root square. After that, we make calculations to determine if we can call `drawFractal` again with updated information based on the parent square and increasing depth. Then we make calculations again in the child square, and so on, until the current depth reaches our desired depth.
+
+### Optimization
+
+It is all simple. Squares that are off the sceen are not been drawn.
+
+## Libraries
+
+1. **Lodash.js** - a modern JavaScript utility library for handling mouse events throttling.
+
+```html
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"
+  integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+```
+
+In order to make window event such as wheel and mouse move more efficient so they use less resources by decresing times they called, I used **`lodash.js`**.
+
+2. **Dat-GUI** - a lightweight graphical user interface for changing variables in the code.
+
+```html
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"
+  type="text/javascript"
+></script>
+```
+
+In order to have quick and simple user interface, I used **`dat-gui`**.
+
+## Installation
+
+1. Clone the repository:
+
+   ```bash/cmd
+   git clone https://github.com/Zyabrik10/square-fractal.git
+   ```
+2. Navigate to the project directory:
+
+   ```bash/cmd
+    cd square-fractal
+   ```
+3. Open index.html in your favorite web browser (mine is Chrome).
+
+## Controls
+
+- `Zoom In/Out`: Use the mouse wheel to zoom in and out of the fractal.
+- `Drag`: Click and drag to move around the fractal.
+- `The Fractal customization`: UI at right top corner
+
+## GUI Parameters
+
+- `Current Depth`: Adjust the depth of recursion (1-10).
+- `Scaling Factor (k)`: Change the scaling factor for the recursive squares (0.4-0.5).
+- `Reset`: Reset button the fractal to its initial state.
+
+## Customization
+
+Feel free to customize the fractal parameters and behavior by modifying the settings object and the `drawFractal` function in the `ndex.js` file. Experiment with different scaling factors, depths, and offsets to create unique fractal patterns.
+
+## License
+
+This project is open for non-commercial use. You are free to use, modify, and distribute this code as long as it remains non-commercial and you provide my nickname, Zyabrik10. Isn't that cool?
+
+## Author
+
+Zyabrik10 - [GitHub](https://github.com/Zyabrik10) | [LinkedIn](https://www.linkedin.com/in/alexander-mazurok-jfd/)
+*/
