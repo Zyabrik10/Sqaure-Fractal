@@ -26,7 +26,7 @@ let mouse = {
 };
 
 // default values for entire app
-const currentDepth = 5;
+const currentDepth = 5; // defines what depth of fractal will be. For example: 10 means it will 10 squares in a row in depth
 const size = 200; // defined size of root square, is used in settings and on wheel event for zoom in and out effect
 const zoom = 10; // strength of zooming (+- 10px to the size of root square per wheel)
 

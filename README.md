@@ -18,28 +18,76 @@ Have a fun. Hope you will enjoy it: [Demo link](https://zyabrik10.github.io/Sqau
 
 ### Global variables
 
+Will be initialized in window on load
+
 ```js
-let canvas, ctx; // will be initialized in window on load
+let canvas, ctx;
+```
 
-// canvas.width / 2, canvas.height / 2
-let halfCanvasWidth, halfCanvasHeight; // will be initialized in window on load
+---
 
-/*
-  - "startPoint" is an object which contains coordinates used to draw the first parent square
+canvas.width / 2, canvas.height / 2
+Will be initialized in window on load
 
-  - "settings" is an object which contains dependencies for all app and GUI
-*/
-let startPoint, settings; // will be initialized in window on load
+```js
+let halfCanvasWidth, halfCanvasHeight;
+```
+
+---
+
+"startPoint" is an object which contains coordinates used to draw the first parent square
+
+"settings" is an object which contains dependencies for all app and GUI
+
+Will be initialized in window on load
+
+```js
+let startPoint, settings;
+```
+
+---
+
+downOffset - is used in canvas mousedown
+isDown - is used in canvas mousedown, mouseup, mousemove
+
+```js
+let mouse = {
+  downOffset: { x: 0, y: 0 },
+  isDown: false,
+};
+```
+
+---
+
+Default values for entire app
+
+currentDepth - defines what depth of fractal will be. For example: 5 means it will 5 squares in a row in depth.
+size - defines size of root square, is used in settings and on wheel event for zoom in and out effect.
+zoom - strength of zooming (+- 10px to the size of root square per wheel)
+
+```js
+const currentDepth = 5;
+const size = 200;
+const zoom = 10;
+```
+
+#### Code preview
+
+```js
+let canvas, ctx;
+
+let halfCanvasWidth, halfCanvasHeight;
+
+let startPoint, settings;
 
 let mouse = {
-  downOffset: { x: 0, y: 0 }, // is used in canvas mousedown
-  isDown: false, // is used in canvas mousedown, mouseup, mousemove
+  downOffset: { x: 0, y: 0 },
+  isDown: false,
 };
 
-// default values for entire app
 const currentDepth = 5;
-const size = 200; // defined size of root square, is used in settings and on wheel event for zoom in and out effect
-const zoom = 10; // strength of zooming (+- 10px to the size of root square per wheel)
+const size = 200;
+const zoom = 10;
 ```
 
 ### Functions and what they do
