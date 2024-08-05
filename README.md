@@ -1,6 +1,6 @@
 # Square Fractal
 
-Good morning to you. Let me introduce my simple but marvelous project. It is a fractal, and as the project's name says, it is The Fractal that consists of squares. Pretty charming, I would say. You can observe the fractal just by dragging it around and zooming in or out. You are also able to increase or decrease the depth of the fractal from level 1 to level 10, where 1 and 10 are the minimum and maximum depth of the fractal. Why 1 and 11? Well, 0 depth level means you don't have any squares, and 10 is the maximum depth of squares which can quickly be redrawn by my algorithm.
+Good morning to you. Let me introduce my simple but marvelous project. It is a fractal, and as the project's name says, it is The Fractal that consists of squares. Pretty charming, I would say. You can observe the fractal just by dragging it around and zooming in or out. You are also able to increase or decrease the depth of the fractal from level 1 to level 10, where 1 and 10 are the minimum and maximum depth of the fractal. Why 1 and 10? Well, 0 depth level means you don't have any squares, and 10 is the maximum depth of squares which can quickly be redrawn by my algorithm.
 
 ## About my work
 
