@@ -14,7 +14,7 @@ Here is an explanation of the code I wrote. Both the explanation and the code it
 
 ![1722878382546](images/README/1722878382546.png)
 
-Have a fun. Hope you will enjoy it: [Demo link](https://zyabrik10.github.io/Sqaure-Fractal/)
+Have a fun. Hope you will enjoy it: [Demo link](https://zyabrik10.github.io/Square-Fractal/)
 
 ## How it works?
 
