@@ -51,6 +51,7 @@ let startPoint, settings; // Will be initialized in window on load.
 We need mouse object to store mouse state.
 
 `downOffset` - is used in canvas mousedown
+
 `isDown` - is used in canvas mousedown, mouseup, mousemove
 
 ```js
@@ -71,6 +72,7 @@ You can modify them all.
 For example: 5 means it will 5 squares in a row in depth.
 
 `size` - defines start size of root square, is used in settings and on wheel event for zoom in and out effect.
+
 `zoom` - strength of zooming (+- 10px to the size of root square per wheel), also is used in on wheel event for zoom in and out effect.
 
 ```js
@@ -172,10 +174,10 @@ This offset is used in the main offset calculation `size * offset` to determine 
 
 For example, if the parent square has coordinates `x = 0`, `y = 0` and its `size` is `100px`, then:
 
-- To draw a `left top` corner square, we calculate:
+- To draw a `top left` corner square, we calculate:
 
   ```txt
-   __- top left square | child square
+   __- top  square | child square
   |__|____
     |    |
     |____| - parent square
@@ -185,7 +187,7 @@ For example, if the parent square has coordinates `x = 0`, `y = 0` and its `size
   squareX = 0 - 100 * 1 = -100
   squareY = 0 - 100 * 1 = -100
   ```
-- To draw a `right top` corner square, we calculate: -> `x = 0 + 100, y = 0 - 100` (so our calculation will be according to `right top` corner of the parent square):
+- To draw a `top right` corner square, we calculate: -> `x = 0 + 100, y = 0 - 100` (so our calculation will be according to `top right` corner of the parent square):
 
   ```txt
         __
@@ -198,7 +200,7 @@ For example, if the parent square has coordinates `x = 0`, `y = 0` and its `size
   squareX = 100 - 100 * 0 = 100
   squareY = 0 - 100 * 1 = -100
   ```
-- To draw a `right bottom` corner square, we calculate: -> `x = 0 + 100, y = 0 + 100` (so our calculation will be according to `right bottom` corner of the parent square):
+- To draw a `bottom right` corner square, we calculate: -> `x = 0 + 100, y = 0 + 100` (so our calculation will be according to `bottom right` corner of the parent square):
 
   ```txt
    ____
@@ -211,7 +213,7 @@ For example, if the parent square has coordinates `x = 0`, `y = 0` and its `size
   squareX = 100 - 100 * 0 = 100
   squareY = 100 - 100 * 0 = 100
   ```
-- To draw a `left bottom` corner square, we calculate: -> `x = 0 - 100, y = 0 + 100` (so our calculation will be according to `left bottom` corner of the parent square):
+- To draw a `bottom left` corner square, we calculate: -> `x = 0 - 100, y = 0 + 100` (so our calculation will be according to `bottom left` corner of the parent square):
 
   ```txt
       ____
@@ -245,22 +247,22 @@ For the `top right` square, we don't need to draw the `bottom left` square.
 |____|
 ```
 
-For the `bottom left` square, we don't need to draw the `top right` square.
-
-```txt
- ____
-|  __| - this square inside, we don't need it
-|_|__|__
-     |__| - bottom right square
-```
-
-For the `bottom right` square, we don't need to draw the `top left` square.
+For the `bottom right` square, we don't need to draw the `top right` square.
 
 ```txt
     ____
    |__  |
  __|__|_| - this square inside, we don't need it
 |__| - bottom left square
+```
+
+For the `bottom left` square, we don't need to draw the `top left` square.
+
+```txt
+ ____
+|  __| - this square inside, we don't need it
+|_|__|__
+     |__| - bottom right square
 ```
 
 We use a bitmask to determine which sides and corners need to be drawn:
@@ -655,7 +657,7 @@ In order to have quick and simple user interface, I used **`dat-gui`**.
 1. Clone the repository:
 
    ```bash/cmd
-   git clone https://github.com/Zyabrik10/square-fractal.git
+
    ```
 2. Navigate to the project directory:
 
@@ -678,7 +680,7 @@ In order to have quick and simple user interface, I used **`dat-gui`**.
 
 ## Customization
 
-Feel free to customize the fractal parameters and behavior by modifying the settings object and the `drawFractal` function in the `ndex.js` file. Experiment with different scaling factors, depths, and offsets to create unique fractal patterns.
+Feel free to customize the fractal parameters and behavior by modifying the settings object and the `drawFractal` function in the `index.js` file. Experiment with different scaling factors, depths, and offsets to create unique fractal patterns.
 
 ## License
 
